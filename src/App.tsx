@@ -441,20 +441,6 @@ function App() {
                   initial={{ opacity: 0, y: 20, scale: 0.8 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: 20, scale: 0.8 }}
-                  transition={{ delay: 0.15 }}
-                  onClick={() => openAddModal('savings')}
-                  className="flex items-center gap-2 pr-4 pl-2 py-2 bg-cyan-500 text-white rounded-full shadow-lg hover:bg-cyan-400 group"
-                >
-                  <div className="p-2 bg-white/20 rounded-full">
-                    <Landmark className="w-5 h-5" />
-                  </div>
-                  <span className="font-medium">Savings</span>
-                </motion.button>
-
-                <motion.button
-                  initial={{ opacity: 0, y: 20, scale: 0.8 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: 20, scale: 0.8 }}
                   transition={{ delay: 0.1 }}
                   onClick={() => openAddModal('loan')}
                   className="flex items-center gap-2 pr-4 pl-2 py-2 bg-amber-500 text-white rounded-full shadow-lg hover:bg-amber-400 group"

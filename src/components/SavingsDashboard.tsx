@@ -542,6 +542,22 @@ export function SavingsDashboard({
                   >
                     <Share2 className="w-5 h-5" />
                   </button>
+
+                  <button
+                    onClick={() => {
+                      if (!selectedDoc) return;
+                      const link = document.createElement('a');
+                      link.href = selectedDoc.data;
+                      link.download = selectedDoc.name;
+                      document.body.appendChild(link);
+                      link.click();
+                      document.body.removeChild(link);
+                    }}
+                    className="p-2.5 bg-white/10 hover:bg-white/20 text-white rounded-full transition-all backdrop-blur-md"
+                    title="Download"
+                  >
+                    <Download className="w-5 h-5" />
+                  </button>
                   
                   <button
                     onClick={() => {
