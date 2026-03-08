@@ -45,6 +45,24 @@ export function SavingsDashboard({
   const [exchangeRate, setExchangeRate] = useState('28.5');
   const [sourceCurrency, setSourceCurrency] = useState<'MYR' | 'BDT'>('BDT');
 
+  // Helper to identify foreign banks
+  const isForeignBank = (name: string) => {
+    const lower = name.toLowerCase();
+    return lower.includes('malaysia') || 
+           lower.includes('tng') || 
+           lower.includes('intl') || 
+           lower.includes('usd') || 
+           lower.includes('foreign') || 
+           lower.includes('abroad') ||
+           lower.includes('cimb') ||
+           lower.includes('maybank') ||
+           lower.includes('wise') ||
+           lower.includes('euro') ||
+           lower.includes('gbp') ||
+           lower.includes('global') ||
+           lower.includes('dollar');
+  };
+
   const openConvertModal = (bankId: string) => {
     setConvertBankId(bankId);
     setConvertAmount('');
@@ -60,8 +78,8 @@ export function SavingsDashboard({
     if (isNaN(amount) || amount <= 0) return;
     if (sourceCurrency === 'BDT' && (isNaN(rate) || rate <= 0)) return;
 
-    // If source is MYR, we add directly (1:1).
-    // If source is BDT, we divide by rate to get MYR.
+    // If source is Bank Currency (MYR/USD/etc), we add directly (1:1).
+    // If source is BDT, we divide by rate to get Bank Currency.
     const convertedAmount = sourceCurrency === 'MYR' ? amount : amount / rate;
 
     const newBanks = banks.map(bank => {
@@ -84,7 +102,10 @@ export function SavingsDashboard({
 
   const handleUploadClick = (category: 'receipt' | 'document') => {
     setUploadCategory(category);
-    fileInputRef.current?.click();
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ''; // Reset input to allow selecting the same file
+      fileInputRef.current.click();
+    }
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -98,23 +119,36 @@ export function SavingsDashboard({
 
     setIsUploading(true);
     const reader = new FileReader();
+    
     reader.onloadend = () => {
-      const base64String = reader.result as string;
-      const type = file.type.startsWith('image/') ? 'image' : 'pdf';
-      
-      const newDoc: Document = {
-        id: crypto.randomUUID(),
-        name: file.name,
-        type,
-        category: uploadCategory,
-        data: base64String,
-        date: new Date().toISOString().split('T')[0],
-      };
+      try {
+        const base64String = reader.result as string;
+        const type = file.type.startsWith('image/') ? 'image' : 'pdf';
+        
+        const newDoc: Document = {
+          id: Date.now().toString() + Math.random().toString(36).substring(2),
+          name: file.name,
+          type,
+          category: uploadCategory,
+          data: base64String,
+          date: new Date().toISOString().split('T')[0],
+        };
 
-      onAddDocument(newDoc);
-      setIsUploading(false);
-      if (fileInputRef.current) fileInputRef.current.value = '';
+        onAddDocument(newDoc);
+      } catch (error) {
+        console.error("Error processing file:", error);
+        alert("Failed to process file. Please try again.");
+      } finally {
+        setIsUploading(false);
+      }
     };
+    
+    reader.onerror = () => {
+      console.error("File reading error");
+      setIsUploading(false);
+      alert("Error reading file.");
+    };
+
     reader.readAsDataURL(file);
   };
 
@@ -168,8 +202,7 @@ export function SavingsDashboard({
 
   // Calculate total from manual banks
   const totalSavings = banks.reduce((acc, curr) => {
-    const isMalaysia = curr.name.toLowerCase().includes('malaysia') || curr.name.toLowerCase().includes('tng');
-    if (isMalaysia) {
+    if (isForeignBank(curr.name)) {
       return acc + (curr.amount * MYR_TO_BDT);
     }
     return acc + curr.amount;
@@ -262,7 +295,7 @@ export function SavingsDashboard({
             {banks.map((bank, index) => {
               const Icon = getBankIcon(bank.name);
               const isEditing = editingId === bank.id;
-              const isMalaysia = bank.name.toLowerCase().includes('malaysia') || bank.name.toLowerCase().includes('tng');
+              const isForeign = isForeignBank(bank.name);
               const isUSD = bank.name.toLowerCase().includes('usd');
               
               return (
@@ -308,7 +341,7 @@ export function SavingsDashboard({
                         <span className="text-white font-medium truncate text-xs" title={bank.name}>{bank.name}</span>
                       </div>
                       
-                      {isMalaysia ? (
+                      {isForeign ? (
                         <div className="flex flex-col w-full">
                           <span className="text-cyan-300 font-bold text-base tracking-tight">
                             {formatCurrency(bank.amount, 'RM ')}
@@ -328,7 +361,7 @@ export function SavingsDashboard({
                       )}
                       
                       <div className="absolute top-1 right-1 flex gap-1">
-                        {isMalaysia && (
+                        {isForeign && (
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
@@ -599,7 +632,7 @@ export function SavingsDashboard({
                         : "bg-white/5 border-white/10 text-gray-400 hover:bg-white/10"
                     )}
                   >
-                    Source: MYR
+                    Source: Bank Currency
                     <span className="block text-[10px] opacity-60">Add Directly</span>
                   </button>
                   <button
@@ -612,7 +645,7 @@ export function SavingsDashboard({
                     )}
                   >
                     Source: BDT
-                    <span className="block text-[10px] opacity-60">Convert to MYR</span>
+                    <span className="block text-[10px] opacity-60">Convert to Bank Currency</span>
                   </button>
                 </div>
 
@@ -622,7 +655,7 @@ export function SavingsDashboard({
                     animate={{ opacity: 1, height: 'auto' }}
                     exit={{ opacity: 0, height: 0 }}
                   >
-                    <label className="text-sm text-gray-400 mb-2 block">Exchange Rate (BDT per MYR)</label>
+                    <label className="text-sm text-gray-400 mb-2 block">Exchange Rate (BDT per Unit)</label>
                     <input
                       type="number"
                       value={exchangeRate}
@@ -640,7 +673,7 @@ export function SavingsDashboard({
                       sourceCurrency === 'MYR' 
                         ? (parseFloat(convertAmount) || 0)
                         : (parseFloat(convertAmount) || 0) / (parseFloat(exchangeRate) || 1),
-                      'RM '
+                      ' '
                     )}
                   </span>
                 </div>
