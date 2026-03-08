@@ -117,7 +117,7 @@ export function TransactionList({ transactions, onDelete, onEdit }: TransactionL
                 </div>
                 <div>
                   <h3 className="text-xs font-medium text-white">{transaction.category}</h3>
-                  <p className="text-[10px] text-gray-400">{format(new Date(transaction.date), 'MMM d')} • {transaction.note}</p>
+                  <p className="text-[10px] text-gray-400">{format(new Date(transaction.date), 'dd-MM-yyyy')} • {transaction.note}</p>
                 </div>
               </div>
 

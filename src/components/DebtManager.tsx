@@ -176,7 +176,7 @@ export function DebtManager({ debts, onAddDebt, onDeleteDebt }: DebtManagerProps
                     <div>
                       <h4 className="font-medium text-white">{debt.name}</h4>
                       <div className="flex items-center gap-2 text-xs text-gray-400">
-                        <span>{format(new Date(debt.date), 'MMM d, yyyy')}</span>
+                        <span>{format(new Date(debt.date), 'dd-MM-yyyy')}</span>
                         {debt.phoneNumber && (
                           <span className="flex items-center gap-1">
                             • <Phone className="w-3 h-3" /> {debt.phoneNumber}
@@ -222,7 +222,7 @@ export function DebtManager({ debts, onAddDebt, onDeleteDebt }: DebtManagerProps
                     <div>
                       <h4 className="font-medium text-white">{debt.name}</h4>
                       <div className="flex items-center gap-2 text-xs text-gray-400">
-                        <span>{format(new Date(debt.date), 'MMM d, yyyy')}</span>
+                        <span>{format(new Date(debt.date), 'dd-MM-yyyy')}</span>
                         {debt.phoneNumber && (
                           <span className="flex items-center gap-1">
                             • <Phone className="w-3 h-3" /> {debt.phoneNumber}

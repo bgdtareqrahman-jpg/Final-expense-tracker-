@@ -1,5 +1,11 @@
 import { Wallet, TrendingUp, TrendingDown, CreditCard } from 'lucide-react';
-import { formatCurrency } from '../lib/utils';
+
+const formatAmount = (amount: number) => {
+  return new Intl.NumberFormat("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(amount);
+};
 
 interface SummaryCardsProps {
   totalIncome: number;
@@ -16,8 +22,9 @@ export function SummaryCards({ totalIncome, totalExpense, totalLoan, currentBala
           <TrendingUp className="w-6 h-6 text-emerald-400" />
         </div>
         <p className="absolute top-1.5 left-1.5 z-10 text-emerald-400 font-medium text-[9px] uppercase tracking-wider">Income</p>
-        <div className="relative z-10">
-          <h3 className="text-base sm:text-lg font-bold text-white truncate leading-tight">{formatCurrency(totalIncome)}</h3>
+        <div className="relative z-10 flex items-baseline">
+          <span className="text-[10px] text-emerald-400/70 mr-0.5">৳</span>
+          <h3 className="text-base sm:text-lg font-bold text-white truncate leading-tight">{formatAmount(totalIncome)}</h3>
         </div>
       </div>
 
@@ -26,8 +33,9 @@ export function SummaryCards({ totalIncome, totalExpense, totalLoan, currentBala
           <TrendingDown className="w-6 h-6 text-rose-400" />
         </div>
         <p className="absolute top-1.5 left-1.5 z-10 text-rose-400 font-medium text-[9px] uppercase tracking-wider">Expense</p>
-        <div className="relative z-10">
-          <h3 className="text-base sm:text-lg font-bold text-white truncate leading-tight">{formatCurrency(totalExpense)}</h3>
+        <div className="relative z-10 flex items-baseline">
+          <span className="text-[10px] text-rose-400/70 mr-0.5">৳</span>
+          <h3 className="text-base sm:text-lg font-bold text-white truncate leading-tight">{formatAmount(totalExpense)}</h3>
         </div>
       </div>
 
@@ -36,8 +44,9 @@ export function SummaryCards({ totalIncome, totalExpense, totalLoan, currentBala
           <CreditCard className="w-6 h-6 text-amber-400" />
         </div>
         <p className="absolute top-1.5 left-1.5 z-10 text-amber-400 font-medium text-[9px] uppercase tracking-wider">Total Loan Paid</p>
-        <div className="relative z-10">
-          <h3 className="text-base sm:text-lg font-bold text-white truncate leading-tight">{formatCurrency(totalLoan)}</h3>
+        <div className="relative z-10 flex items-baseline">
+          <span className="text-[10px] text-amber-400/70 mr-0.5">৳</span>
+          <h3 className="text-base sm:text-lg font-bold text-white truncate leading-tight">{formatAmount(totalLoan)}</h3>
         </div>
       </div>
 
@@ -46,8 +55,9 @@ export function SummaryCards({ totalIncome, totalExpense, totalLoan, currentBala
           <Wallet className="w-6 h-6 text-indigo-400" />
         </div>
         <p className="absolute top-1.5 left-1.5 z-10 text-indigo-400 font-medium text-[9px] uppercase tracking-wider">Current Balance</p>
-        <div className="relative z-10">
-          <h3 className={`text-base sm:text-lg font-bold truncate leading-tight ${currentBalance < 0 ? 'text-rose-500' : 'text-emerald-500'}`}>{formatCurrency(currentBalance)}</h3>
+        <div className="relative z-10 flex items-baseline">
+          <span className={`text-[10px] mr-0.5 ${currentBalance < 0 ? 'text-rose-500/70' : 'text-emerald-500/70'}`}>৳</span>
+          <h3 className={`text-base sm:text-lg font-bold truncate leading-tight ${currentBalance < 0 ? 'text-rose-500' : 'text-emerald-500'}`}>{formatAmount(currentBalance)}</h3>
         </div>
       </div>
     </div>

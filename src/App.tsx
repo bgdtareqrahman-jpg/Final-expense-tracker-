@@ -13,6 +13,7 @@ import { DebtManager } from './components/DebtManager';
 import { CategoryManager } from './components/CategoryManager';
 import { SavingsDashboard } from './components/SavingsDashboard';
 import { DocumentsManager } from './components/DocumentsManager';
+import { ExpenseDashboard } from './components/ExpenseDashboard';
 import { Account } from './components/Account';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -25,42 +26,76 @@ const DEFAULT_CATEGORIES = {
 
 function App() {
   const [transactions, setTransactions] = useState<Transaction[]>(() => {
-    const saved = localStorage.getItem('transactions');
-    return saved ? JSON.parse(saved) : [];
+    try {
+      const saved = localStorage.getItem('transactions');
+      return saved ? JSON.parse(saved) : [];
+    } catch (e) {
+      console.error('Failed to parse transactions', e);
+      return [];
+    }
   });
 
   const [categories, setCategories] = useState<typeof DEFAULT_CATEGORIES>(() => {
-    const saved = localStorage.getItem('categories');
-    const parsed = saved ? JSON.parse(saved) : {};
-    return { ...DEFAULT_CATEGORIES, ...parsed };
+    try {
+      const saved = localStorage.getItem('categories');
+      const parsed = saved ? JSON.parse(saved) : {};
+      return { ...DEFAULT_CATEGORIES, ...parsed };
+    } catch (e) {
+      console.error('Failed to parse categories', e);
+      return DEFAULT_CATEGORIES;
+    }
   });
 
   const [debts, setDebts] = useState<Debt[]>(() => {
-    const saved = localStorage.getItem('debts');
-    return saved ? JSON.parse(saved) : [];
+    try {
+      const saved = localStorage.getItem('debts');
+      return saved ? JSON.parse(saved) : [];
+    } catch (e) {
+      console.error('Failed to parse debts', e);
+      return [];
+    }
   });
 
   const [documents, setDocuments] = useState<Document[]>(() => {
-    const saved = localStorage.getItem('documents');
-    return saved ? JSON.parse(saved) : [];
+    try {
+      const saved = localStorage.getItem('documents');
+      return saved ? JSON.parse(saved) : [];
+    } catch (e) {
+      console.error('Failed to parse documents', e);
+      return [];
+    }
   });
 
   const [banks, setBanks] = useState<ManualBank[]>(() => {
-    const saved = localStorage.getItem('savings_banks');
-    return saved ? JSON.parse(saved) : [
-      { id: '1', name: 'Bank 1 (BD)', amount: 0 },
-      { id: '2', name: 'Bank 2 (BD)', amount: 0 },
-      { id: '3', name: 'Bank 3 (Intl)', amount: 0 }
-    ];
+    try {
+      const saved = localStorage.getItem('savings_banks');
+      return saved ? JSON.parse(saved) : [
+        { id: '1', name: 'Bank 1 (BD)', amount: 0 },
+        { id: '2', name: 'Bank 2 (BD)', amount: 0 },
+        { id: '3', name: 'Bank 3 (Intl)', amount: 0 }
+      ];
+    } catch (e) {
+      console.error('Failed to parse banks', e);
+      return [
+        { id: '1', name: 'Bank 1 (BD)', amount: 0 },
+        { id: '2', name: 'Bank 2 (BD)', amount: 0 },
+        { id: '3', name: 'Bank 3 (Intl)', amount: 0 }
+      ];
+    }
   });
 
   const [userProfile, setUserProfile] = useState<UserProfile>(() => {
-    const saved = localStorage.getItem('userProfile');
-    return saved ? JSON.parse(saved) : { name: 'Guest' };
+    try {
+      const saved = localStorage.getItem('userProfile');
+      return saved ? JSON.parse(saved) : { name: 'Guest' };
+    } catch (e) {
+      console.error('Failed to parse userProfile', e);
+      return { name: 'Guest' };
+    }
   });
 
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'analytics' | 'debts' | 'history' | 'savings' | 'account' | 'documents'>(() => {
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'analytics' | 'debts' | 'history' | 'savings' | 'account' | 'documents' | 'daily-expenses'>(() => {
     const saved = localStorage.getItem('activeTab');
     return (saved as any) || 'dashboard';
   });
@@ -312,6 +347,12 @@ function App() {
               </div>
             </section>
 
+          </div>
+        )}
+
+        {activeTab === 'daily-expenses' && (
+          <div className="h-full">
+            <ExpenseDashboard />
           </div>
         )}
 

@@ -3,6 +3,7 @@ import { Document } from '../types';
 import { Upload, FileText, Image as ImageIcon, Trash2, X, Download, Eye } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../lib/utils';
+import { format } from 'date-fns';
 
 interface DocumentsManagerProps {
   documents: Document[];
@@ -139,7 +140,7 @@ export function DocumentsManager({ documents, onAddDocument, onDeleteDocument }:
                       {doc.name}
                     </p>
                     <p className="text-xs text-gray-500 mt-0.5">
-                      {doc.date} • {doc.type.toUpperCase()}
+                      {format(new Date(doc.date), 'dd-MM-yyyy')} • {doc.type.toUpperCase()}
                     </p>
                   </div>
                   <button
