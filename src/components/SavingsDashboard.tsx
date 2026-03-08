@@ -43,22 +43,26 @@ export function SavingsDashboard({
   const [convertBankId, setConvertBankId] = useState<string>('');
   const [convertAmount, setConvertAmount] = useState('');
   const [exchangeRate, setExchangeRate] = useState('28.5');
-  const [conversionMode, setConversionMode] = useState<'multiply' | 'divide'>('multiply');
+  const [sourceCurrency, setSourceCurrency] = useState<'MYR' | 'BDT'>('BDT');
 
   const openConvertModal = (bankId: string) => {
     setConvertBankId(bankId);
     setConvertAmount('');
     setExchangeRate('28.5');
-    setConversionMode('multiply');
+    setSourceCurrency('BDT');
     setIsConvertModalOpen(true);
   };
 
   const handleConvertAndAdd = () => {
     const amount = parseFloat(convertAmount);
     const rate = parseFloat(exchangeRate);
-    if (isNaN(amount) || isNaN(rate) || amount <= 0 || rate <= 0) return;
+    
+    if (isNaN(amount) || amount <= 0) return;
+    if (sourceCurrency === 'BDT' && (isNaN(rate) || rate <= 0)) return;
 
-    const convertedAmount = conversionMode === 'multiply' ? amount * rate : amount / rate;
+    // If source is MYR, we add directly (1:1).
+    // If source is BDT, we divide by rate to get MYR.
+    const convertedAmount = sourceCurrency === 'MYR' ? amount : amount / rate;
 
     const newBanks = banks.map(bank => {
       if (bank.id === convertBankId) {
@@ -587,50 +591,56 @@ export function SavingsDashboard({
 
                 <div className="grid grid-cols-2 gap-2">
                   <button
-                    onClick={() => setConversionMode('multiply')}
+                    onClick={() => setSourceCurrency('MYR')}
                     className={cn(
                       "p-3 rounded-xl border text-sm font-medium transition-all",
-                      conversionMode === 'multiply'
+                      sourceCurrency === 'MYR'
                         ? "bg-purple-500/20 border-purple-500/50 text-white"
                         : "bg-white/5 border-white/10 text-gray-400 hover:bg-white/10"
                     )}
                   >
-                    MYR → BDT
-                    <span className="block text-[10px] opacity-60">Multiply by Rate</span>
+                    Source: MYR
+                    <span className="block text-[10px] opacity-60">Add Directly</span>
                   </button>
                   <button
-                    onClick={() => setConversionMode('divide')}
+                    onClick={() => setSourceCurrency('BDT')}
                     className={cn(
                       "p-3 rounded-xl border text-sm font-medium transition-all",
-                      conversionMode === 'divide'
+                      sourceCurrency === 'BDT'
                         ? "bg-purple-500/20 border-purple-500/50 text-white"
                         : "bg-white/5 border-white/10 text-gray-400 hover:bg-white/10"
                     )}
                   >
-                    BDT → MYR
-                    <span className="block text-[10px] opacity-60">Divide by Rate</span>
+                    Source: BDT
+                    <span className="block text-[10px] opacity-60">Convert to MYR</span>
                   </button>
                 </div>
 
-                <div>
-                  <label className="text-sm text-gray-400 mb-2 block">Exchange Rate</label>
-                  <input
-                    type="number"
-                    value={exchangeRate}
-                    onChange={(e) => setExchangeRate(e.target.value)}
-                    className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-2 text-white focus:outline-none focus:border-purple-500 transition-colors font-mono text-sm"
-                    placeholder="28.5"
-                  />
-                </div>
+                {sourceCurrency === 'BDT' && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                  >
+                    <label className="text-sm text-gray-400 mb-2 block">Exchange Rate (BDT per MYR)</label>
+                    <input
+                      type="number"
+                      value={exchangeRate}
+                      onChange={(e) => setExchangeRate(e.target.value)}
+                      className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-2 text-white focus:outline-none focus:border-purple-500 transition-colors font-mono text-sm"
+                      placeholder="28.5"
+                    />
+                  </motion.div>
+                )}
 
                 <div className="bg-white/5 rounded-xl p-3 flex justify-between items-center">
-                  <span className="text-sm text-gray-400">Will Add:</span>
+                  <span className="text-sm text-gray-400">Will Add to Bank:</span>
                   <span className="text-lg font-bold text-purple-300">
                     {formatCurrency(
-                      conversionMode === 'multiply' 
-                        ? (parseFloat(convertAmount) || 0) * (parseFloat(exchangeRate) || 0)
+                      sourceCurrency === 'MYR' 
+                        ? (parseFloat(convertAmount) || 0)
                         : (parseFloat(convertAmount) || 0) / (parseFloat(exchangeRate) || 1),
-                      conversionMode === 'multiply' ? '৳ ' : 'RM '
+                      'RM '
                     )}
                   </span>
                 </div>
